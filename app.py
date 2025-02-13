@@ -15,7 +15,8 @@ transactions = [
 # Read operation
 @app.route('/')
 def get_transactions():
-    return render_template('transactions.html',transactions=transactions)
+    #print(total_balance())
+    return render_template('transactions.html',transactions=transactions,total_balance=total_balance(transactions))
 
 # Create operation
 @app.route("/add", methods=["GET", "POST"])
@@ -89,13 +90,24 @@ def search_transaction():
                 found_transactions.append(transaction)                           # Exit the loop once the transaction is found and updated
         # Redirect to the transactions list page after updating the transaction
         if len(found_transactions) > 0:
-            return render_template('transactions.html',transactions=found_transactions)
+            return render_template('transactions.html',transactions=found_transactions, total_balance=total_balance(found_transactions))
         else:
            # If the transaction with the specified ID is not found, handle this case (optional)
             return {"message": "Transaction not found"}, 404 
     
     # If the request method is GET, find the transaction with the matching ID and render the edit form
     return render_template("search.html", search_range=search_range)
+
+# Total balance
+
+@app.route("/balance")
+def total_balance(my_transactions):
+    total = 0
+    # Check if the request method is POST (form submission)
+    for transaction in my_transactions:
+        total += transaction['amount']
+    return {"Balance": total}, 201                          
+                
 
 # Run the Flask app
 if __name__ == "__main__":
